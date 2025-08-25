@@ -19,7 +19,7 @@ project(rtl-wmbus-ng  VERSION 0.1
                       LANGUAGES C)
 
 # add source files
-add_executable(rtl-wmbus
+add_executable(rtl_wmbus
   src/buffers.c
   src/fifo.c
   src/main.c
@@ -32,7 +32,7 @@ add_executable(rtl-wmbus
 
 # add include directories
 # TODO: Move the fixedpoint library to somewhere else
-target_include_directories(rtl-wmbus PUBLIC include)
+target_include_directories(rtl_wmbus PUBLIC include)
 
 # We rely on the math library for floating point fuctions
-target_link_libraries(rtl-wmbus m)
+target_link_libraries(rtl_wmbus m)
