@@ -32,7 +32,6 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include <fixedptc/fixedptc.h>
 
 typedef struct
 {
@@ -92,42 +91,4 @@ void firf_lms(float mu_e, FIRF_FILTER *filter)
     }
 }
 
-typedef struct
-{
-    const size_t length;
-    const fixedpt *const b;
-
-    size_t i;
-    fixedpt *hist;
-} FIRFP_FILTER;
-
-fixedpt firfp(fixedpt sample, FIRFP_FILTER *filter);
-
-fixedpt firfp(fixedpt sample, FIRFP_FILTER *filter)
-{
-    const fixedpt *b = filter->b;
-    fixedpt *hist = &filter->hist[filter->i++];
-    size_t i;
-
-    *hist = sample;
-
-    sample = 0; // will be "y"
-
-    for (i = filter->i; i--;)
-    {
-        sample = fixedpt_add(sample, fixedpt_mul((*b++), (*hist--)));
-    }
-
-    hist = &filter->hist[filter->length-1];
-    for (i = filter->length; i-- > filter->i;)
-    {
-        sample = fixedpt_add(sample, fixedpt_mul((*b++), (*hist--)));
-    }
-
-    if (filter->i >= filter->length) filter->i = 0;
-
-    return sample;
-}
-
 #endif /* FIR_H */
-
