@@ -8,15 +8,10 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v4
-    - name: configure
-#      run: ./configure
-      run: date
-    - name: make
-      run: make
-    - name: make
-      run: make release
+      - name: Checkout
+        uses: actions/checkout@v4
+    
+      - name: Build
+        uses: threeal/cmake-action@v2.1.0
