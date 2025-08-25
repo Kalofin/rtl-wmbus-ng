@@ -1,3 +1,5 @@
+.PHONY: all release debug profile pi1 rebuild install clean
+
 RM=rm
 MKDIR=mkdir
 CC=gcc
@@ -5,10 +7,10 @@ STRIP=strip
 
 OUTDIR?=build
 OUTFILE="$(OUTDIR)/rtl_wmbus"
-CFLAGS+=-Iinclude -std=gnu99
+CFLAGS+=-Iinclude -std=gnu99 -D _GNU_SOURCE
 CFLAGS_WARNINGS?=-Wall -W -Waggregate-return -Wbad-function-cast -Wcast-align -Wcast-qual -Wchar-subscripts -Wcomment -Wno-float-equal -Winline -Wmain -Wmissing-noreturn -Wno-missing-prototypes -Wparentheses -Wpointer-arith -Wredundant-decls -Wreturn-type -Wshadow -Wsign-compare -Wstrict-prototypes -Wswitch -Wunreachable-code -Wno-unused -Wuninitialized
 LIB?=-lm
-SRC=rtl_wmbus.c
+SRC=rtl_wmbus_util.c main.c fifo.c t1_c1_decimator.c buffers.c t1_c1_decoder.c t1_c1_polar_discriminator.c
 
 $(shell $(MKDIR) -p $(OUTDIR))
 
@@ -51,6 +53,11 @@ all: release
 
 release:
 	$(CC) -DNDEBUG -O3                  $(CFLAGS) $(CFLAGS_WARNINGS) -o $(OUTFILE) $(SRC) $(LIB)
+
+profile:
+	$(CC) -DNDEBUG -O0  -g3          $(CFLAGS) $(CFLAGS_WARNINGS) -o $(OUTFILE) $(SRC) $(LIB)
+	$(RM) -rf test.*.er
+	gprofng collect app build/rtl_wmbus <../samples_short
 
 debug:
 	$(CC) -DDEBUG  -O0 -g3 -ggdb -p -pg $(CFLAGS) $(CFLAGS_WARNINGS) -o $(OUTFILE) $(SRC) $(LIB)

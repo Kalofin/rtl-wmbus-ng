@@ -28,49 +28,27 @@
 
 /*
  * Moving average filter implementation.
-*/
+ */
 
-#include <stdint.h>
 #include <stddef.h>
+#include <stdint.h>
 
-typedef struct
-{
-    size_t i;
-    int *hist;
+typedef struct {
+  size_t i;
+  int *hist;
 
-    const size_t length;
-    int sum;
+  const size_t length;
+  int sum;
 } MAVGI_FILTER;
 
 float mavgi(int sample, MAVGI_FILTER *filter);
 
-float mavgi(int sample, MAVGI_FILTER *filter)
-{
-    filter->sum = filter->sum - filter->hist[filter->i] + sample;
-    filter->hist[filter->i++] = sample;
-    if (filter->i >= filter->length) filter->i = 0;
+float mavgi(int sample, MAVGI_FILTER *filter) {
+  filter->sum = filter->sum - filter->hist[filter->i] + sample;
+  filter->hist[filter->i++] = sample;
+  if (filter->i >= filter->length) filter->i = 0;
 
-    return (float)filter->sum / filter->length;
+  return (float)filter->sum / filter->length;
 }
-
-#if 0
-static int test_mavgi(void)
-{
-#define COEFFS 5
-    static int hist[COEFFS];
-
-    static MAVGI_FILTER filter = { .length = COEFFS, .hist = hist };
-#undef COEFFS
-
-    for (int sample = 0; sample < 20; sample++)
-    {
-        printf("%f, ", mavgi(sample, &filter));
-    }
-    printf("\n");
-
-    return 0;
-}
-#endif
 
 #endif /* MOVING_AVERAGE_FILTER_H */
-

@@ -162,7 +162,7 @@ static FILE *demod_out2_s1 = NULL;
 //static FILE *rawbits_out = NULL;
 
 
-static inline float moving_average_t1_c1(float sample, size_t i_or_q)
+/*static inline*/ float moving_average_t1_c1(float sample, size_t i_or_q)
 {
 #define COEFFS 8
     static int i_hist[COEFFS];
@@ -855,7 +855,7 @@ static void time2_algorithm_s1(unsigned bit, unsigned rssi, struct time2_algorit
 static int opts_run_length_algorithm_enabled = 1;
 static int opts_time2_algorithm_enabled = TIME2_ALGORITHM_ENABLED;
 static unsigned opts_decimation_rate = 2u;
-static int opts_s1_t1_c1_simultaneously = 0;
+static int opts_s1_t1_c1_simultaneously = 1;
 static int opts_accurate_atan = 1;
 static int opts_remove_dc_offset = 0;
 int opts_show_used_algorithm = 0;
@@ -1024,6 +1024,37 @@ static void shift_freq_plus_minus325(float *iplus, float *qplus, float *iminus, 
     // Symmetric positive shift.
     *iplus = ix - qz;
     *qplus = qx + iz;
+
+    // Symmetric negative shift .
+    *iminus = ix + qz;
+    *qminus = qx - iz;
+}
+
+/* Positive frequencies shift: ft = +325kHz the signal will shift from 868.625M right to 868.95M.
+   Negative frequencies shift: ft = -325kHz the signal will shift from 868.625M right to 868.3M. */
+static void shift_freq_minus650(float *iminus, float *qminus, int fs_kHz)
+{
+    const int ft = 650;
+    static size_t n = 0;
+    const size_t n_max = fs_kHz/FREQ_STEP_KHZ;
+
+    const float x = LUT_FREQUENCY_TRANSLATION_PLUS_COSINE[n];
+    const float z = LUT_FREQUENCY_TRANSLATION_PLUS_SINE[n];
+    n += ft/FREQ_STEP_KHZ;
+
+    if (n >= n_max) n -= n_max;
+    float ix, iz, qx, qz;
+
+    // (i+Jq)*(x+Jz) =ix-qz + J(qx+iz) positive rotation
+    // (i+Jq)*(x-Jz) =ix+qz + J(qx-iz) negative rotation
+    // ix, qz, qx, iz are the same for boths shifts so we reuse them
+    // totaling 4 mul and 4 sums instead of 8 mul 4 sum.
+    // It works because iplus equals to iminus and qplus equals to qminus.
+
+    ix = *iminus * x;
+    qx = *qminus * x;
+    iz = *iminus * z;
+    qz = *qminus * z;
 
     // Symmetric negative shift .
     *iminus = ix + qz;
@@ -1214,7 +1245,7 @@ void s1_signal_chain_empty(float i_s1, float q_s1,
 {
 }
 
-int main(int argc, char *argv[])
+int __OLD_main(int argc, char *argv[])
 {
     #if WINDOWS_BUILD == 1
     _setmode(_fileno(stdin), _O_BINARY);
@@ -1323,7 +1354,11 @@ int main(int argc, char *argv[])
 
             if (opts_s1_t1_c1_simultaneously)
             {
-                shift_freq_plus_minus325(&i_t1_c1_unfilt, &q_t1_c1_unfilt, &i_s1_unfilt, &q_s1_unfilt, fs_kHz);
+                // requires to sample at center frequency of 868.625 MHZ
+                //shift_freq_plus_minus325(&i_t1_c1_unfilt, &q_t1_c1_unfilt, &i_s1_unfilt, &q_s1_unfilt, fs_kHz);
+                // to decode S1 frames at 868.3 MHz if we got samples received at 868.95MHZ
+                shift_freq_minus650( &i_s1_unfilt, &q_s1_unfilt, fs_kHz);
+
                 //shift_freq_plus_minus325(&i_s1_unfilt, &q_s1_unfilt, &i_t1_c1_unfilt, &q_t1_c1_unfilt, fs_kHz); // Just to test T1/C1 at 869.275M.
             }
 

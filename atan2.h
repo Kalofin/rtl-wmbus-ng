@@ -2,7 +2,7 @@
 #define ATAN2_H
 
 #include <math.h>
-
+#include <complex.h>
 
 static inline float atan2_libm(float complex y)
 {
