@@ -249,10 +249,10 @@ int get_mode_b_tlg_length(uint8_t lfield) {
   return 1 + (int)lfield;
 }
 
-static int in_rx_t1_c1_packet_decoder(
-    struct t1_c1_packet_decoder_work *decoder) {
-  return (decoder->state == &t1_c1_decoder_states[0]) ? 0 : 1;
-}
+// static int in_rx_t1_c1_packet_decoder(
+//     struct t1_c1_packet_decoder_work *decoder) {
+//   return (decoder->state == &t1_c1_decoder_states[0]) ? 0 : 1;
+// }
 
 static void reset_t1_c1_packet_decoder(
     struct t1_c1_packet_decoder_work *decoder) {

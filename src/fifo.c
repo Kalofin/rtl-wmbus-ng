@@ -22,7 +22,7 @@ unsigned int fifo_get_write_idx(t_fifo* fifo) {
   pthread_mutex_lock(&fifo->mutex);
   if (fifo->count == fifo->number_of_elements) {
     if (fifo->debug_str != NULL)
-      ("[%s] fifo_get_write_idx stalled: %d\n", fifo->debug_str,
+      printf("[%s] fifo_get_write_idx stalled: %d\n", fifo->debug_str,
        fifo->write_index);
     pthread_cond_wait(&fifo->not_full, &fifo->mutex);
   }

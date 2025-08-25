@@ -6,7 +6,8 @@
 #include "fifo.h"
 #include "t1_c1_decoder.h"
 
-int main(int argc, char *argv[]) {
+int main(/*int argc, char *argv[]*/) {
+
   // read from stdin --> decimator_t1_c1
 
   // prepare queue for the raw_sample buffers
