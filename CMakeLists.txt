@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.15...4.0)
 
 # make shall print the commands it is executing
-set( CMAKE_VERBOSE_MAKEFILE on )
+set(CMAKE_VERBOSE_MAKEFILE on)
 
 # set default build type to Release
 if(NOT CMAKE_BUILD_TYPE)
@@ -14,12 +14,13 @@ set(CMAKE_C_FLAGS_DEBUG "-O0 -g")
 set(CMAKE_C_FLAGS_RELEASE "-O3")
 
 # Define our project
-project(rtl-wmbus-ng  VERSION 0.1
-                      DESCRIPTION "Decoder for wmbus messages"
-                      LANGUAGES C)
+project(rtl-wmbus-ng VERSION 0.1
+  DESCRIPTION "Decoder for wmbus messages"
+  LANGUAGES C)
 
 # add source files
 add_executable(rtl_wmbus
+  src/dump.c
   src/buffers.c
   src/fifo.c
   src/main.c
