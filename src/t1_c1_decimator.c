@@ -2,6 +2,7 @@
 #include "t1_c1_decimator.h"
 
 #include "buffers.h"
+#include "dump.h"
 #include "fifo.h"
 #include "moving_average_filter.h"
 
@@ -38,6 +39,8 @@ void* t1_c1_decimator(void* args) {
   unsigned int wr_idx = 0;
   int decimation_rate_index = 0;
 
+  uint64_t timestamp = 0;
+  decimated_sample_buffer->timestamp = timestamp;
   while (!stop) {
     // get the buffer
     t_raw_sample_buffer* raw_sample_buffer =
@@ -69,7 +72,14 @@ void* t1_c1_decimator(void* args) {
           moving_average_t1_c1(q_unfilt, 1);
 
       ++decimation_rate_index;
+      // skip the next steps until we averaged over enough (2) samples
       if (decimation_rate_index < 2) continue;
+
+      add_iq_sample(&dumpbuf_filtered_iq_samples, timestamp,
+                    decimated_sample_buffer->data[wr_idx].i,
+                    decimated_sample_buffer->data[wr_idx].q);
+
+      timestamp++;
       decimation_rate_index = 0;
       wr_idx++;
       if (wr_idx >= (sizeof(decimated_sample_buffer->data) /
@@ -80,6 +90,7 @@ void* t1_c1_decimator(void* args) {
         decimated_sample_buffer =
             &decimated_sample_buffers
                  .buffers[fifo_get_write_idx(fifo_decimates_sample)];
+        decimated_sample_buffer->timestamp = timestamp;
       }
     }
     fifo_release_read_idx(fifo_raw_sample);

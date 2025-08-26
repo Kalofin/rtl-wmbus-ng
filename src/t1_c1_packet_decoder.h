@@ -32,6 +32,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "dump.h"
+
 #if !defined(PACKET_CAPTURE_THRESHOLD)
 #define PACKET_CAPTURE_THRESHOLD 5u
 #endif
@@ -615,13 +617,6 @@ static void t1_c1_packet_decoder(unsigned bit, unsigned rssi,
             decoder->err_3outof ^ 1, decoder->timestamp, decoder->packet_rssi,
             rssi, get_serial(decoder->packet));
 
-#if 0
-        fprintf(stdout, "0x");
-        for (size_t l = 0; l < decoder->L; l++) fprintf(stdout, "%02x", decoder->packet[l]);
-        fprintf(stdout, ";");
-#endif
-
-#if 1
     if (decoder->b_frame_type) {
       decoder->L = cook_pkt_b_frame_type(decoder->packet, decoder->L);
     } else {
@@ -630,10 +625,14 @@ static void t1_c1_packet_decoder(unsigned bit, unsigned rssi,
     fprintf(stdout, "0x");
     for (size_t l = 0; l < decoder->L; l++)
       fprintf(stdout, "%02x", decoder->packet[l]);
-#endif
 
     fprintf(stdout, "\n");
     fflush(stdout);
+
+    dump_iq_samples(&dumpbuf_filtered_iq_samples, "dump/iq");
+    dump_float_samples(&dumpbuf_phi, "dump/phi");
+    // write dump buffer
+
 
     reset_t1_c1_packet_decoder(decoder);
   } else {

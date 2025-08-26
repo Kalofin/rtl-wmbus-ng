@@ -5,10 +5,14 @@
 #include "buffers.h"
 #include "fifo.h"
 #include "t1_c1_decoder.h"
+#include "dump.h"
 
 int main(/*int argc, char *argv[]*/) {
 
   // read from stdin --> decimator_t1_c1
+
+  // prepare dump buffers
+  init_dump();
 
   // prepare queue for the raw_sample buffers
   t_fifo fifo_raw_sample_buffers;
@@ -54,11 +58,13 @@ int main(/*int argc, char *argv[]*/) {
 
   // general initialization
   int stop = 0;
+  uint64_t timestamp=0;
   while (!stop) {
     t_raw_sample_buffer *raw_sample_buffer;
     raw_sample_buffer =
         &raw_sample_buffers
              .buffers[fifo_get_write_idx(&fifo_raw_sample_buffers)];
+    raw_sample_buffer->timestamp=timestamp;
 
     if (feof(input)) {
       stop = 1;
@@ -66,6 +72,7 @@ int main(/*int argc, char *argv[]*/) {
       // try to read a full buffer
       size_t read_items = fread(raw_sample_buffer->data,
                                 sizeof(raw_sample_buffer->data), 1, input);
+      timestamp+=sizeof(raw_sample_buffer->data);
 
       if (1 != read_items) {
         stop = 1;

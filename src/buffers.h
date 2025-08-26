@@ -9,7 +9,7 @@
 typedef struct {
   uint8_t data[DEFAULT_BUFFER_SIZE];
   int stop;  // signal that this ist the last buffer
-  // TODO add timestamp??
+  uint64_t timestamp; // timestamp of the first sample in the buffer
 } t_raw_sample_buffer;
 
 typedef struct {
@@ -24,7 +24,7 @@ typedef struct {
     float q;
   } data[DEFAULT_BUFFER_SIZE];
   int stop;  // signal that this ist the last buffer
-  // TODO add timestamp??
+  uint64_t timestamp; // timestamp of the first sample in the buffer
 } t_decimated_sample_buffer;
 
 typedef struct {
@@ -39,7 +39,7 @@ typedef struct {
     float rssi;
   } data[DEFAULT_BUFFER_SIZE];
   int stop;
-  // TODO add timestamp??
+  uint64_t timestamp; // timestamp of the first sample in the buffer
 } t_phi_rssi_buffer;
 
 typedef struct {
