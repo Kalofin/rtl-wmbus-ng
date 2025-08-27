@@ -7,7 +7,7 @@
 #define DEFAULT_BUFFER_SIZE 4096
 
 typedef struct {
-  uint8_t data[DEFAULT_BUFFER_SIZE];
+  uint8_t data[DEFAULT_BUFFER_SIZE*2];
   int stop;  // signal that this ist the last buffer
   uint64_t timestamp; // timestamp of the first sample in the buffer
 } t_raw_sample_buffer;
