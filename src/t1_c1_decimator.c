@@ -5,6 +5,7 @@
 #include "dump.h"
 #include "fifo.h"
 #include "moving_average_filter.h"
+#include "logging.h"
 
 static inline float moving_average_t1_c1(float sample, size_t i_or_q) {
 #define COEFFS 8
@@ -22,9 +23,7 @@ static inline float moving_average_t1_c1(float sample, size_t i_or_q) {
 }
 
 void* t1_c1_decimator(void* args) {
-#ifdef _GNU_SOURCE
-  pthread_setname_np(pthread_self(), "T1 C1 decimator");
-#endif
+  set_thread_name("T1/C1 decimator");
   // extract arguments
   t_fifo* fifo_raw_sample = ((t_decimation_t1_c1_args*)args)->fifo_raw_sample;
   t_fifo* fifo_decimates_sample =
@@ -86,6 +85,7 @@ void* t1_c1_decimator(void* args) {
                      sizeof(decimated_sample_buffer->data[0]))) {
         wr_idx = 0;
         decimated_sample_buffer->stop = 0;
+        debug2("push one decimated sample buffer");
         fifo_release_write_idx(fifo_decimates_sample);
         decimated_sample_buffer =
             &decimated_sample_buffers

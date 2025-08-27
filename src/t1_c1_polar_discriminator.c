@@ -7,6 +7,7 @@
 #include "buffers.h"
 #include "dump.h"
 #include "fifo.h"
+#include "logging.h"
 
 static inline float _t1_c1_polar_discriminator(float i, float q) {
   static float complex s_last;
@@ -32,9 +33,7 @@ static float rssi_filter_t1_c1(float sample) {
 // execute the polar discriminator and the RSSI calculation
 
 void* t1_c1_polar_discriminator(void* args) {
-#ifdef _GNU_SOURCE
-  pthread_setname_np(pthread_self(), "T1 C1 polar discriminator");
-#endif
+  set_thread_name("T1/C1 discriminator");
 
   uint64_t timestamp = 0;
 
@@ -75,7 +74,8 @@ void* t1_c1_polar_discriminator(void* args) {
       phi_rssi_buffer->data[wr_idx].phi =
           _t1_c1_polar_discriminator(i_t1_c1, q_t1_c1);
 
-      add_float_sample(&dumpbuf_phi, timestamp, phi_rssi_buffer->data[wr_idx].phi);
+      add_float_sample(&dumpbuf_phi, timestamp,
+                       phi_rssi_buffer->data[wr_idx].phi);
 
       // We are using one simple filter to rssi value in order to
       // prevent unexpected "splashes" in signal power.
@@ -87,6 +87,7 @@ void* t1_c1_polar_discriminator(void* args) {
                        sizeof(iq_sample_buffer->data[0]))) {
         wr_idx = 0;
         phi_rssi_buffer->stop = 0;
+        debug2("Release phi rssi buffer");
         fifo_release_write_idx(fifo_out);
         phi_rssi_buffer =
             &phi_rssi_buffers.buffers[fifo_get_write_idx(fifo_out)];

@@ -13,6 +13,7 @@
 #include "t1_c1_decimator.h"
 #include "t1_c1_packet_decoder.h"
 #include "t1_c1_polar_discriminator.h"
+#include "logging.h"
 
 struct runlength_algorithm_t1_c1 {
   int run_length;
@@ -294,9 +295,7 @@ void* t1_c1_decoder(void* args) {
   // Perform Polar Discrimination on the I/Q samples -> delta_phi and rssi
   // feed into the t1_c1_signal_chain
 
-#ifdef _GNU_SOURCE
-  pthread_setname_np(pthread_self(), "T1 C1 decoder");
-#endif
+  set_thread_name("T1 C1 decoder");
 
   // extract arguments
   t_fifo* p_fifo_raw_sample = ((t_t1_c1_decoder_args*)args)->fifo_raw_sample;
